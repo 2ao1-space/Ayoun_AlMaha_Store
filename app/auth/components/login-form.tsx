@@ -99,9 +99,6 @@ export function LoginForm({
           <CardTitle className="text-2xl font-lifta text-center">
             تسجيل الدخول
           </CardTitle>
-          {/* <CardDescription>
-            أدخل بريدك الإلكتروني وكلمة المرور للدخول
-          </CardDescription> */}
         </CardHeader>
         <CardContent>
           {message && (
@@ -141,7 +138,6 @@ export function LoginForm({
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    // className="pr-10"
                   />
                   <button
                     type="button"
