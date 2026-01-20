@@ -1,7 +1,11 @@
 import Image from "next/image";
 import useCards from "../../hooks/useCards";
+export interface Card {
+  id: number;
+  src: string;
+}
 
-export default function CardsFigure({ CardImg }) {
+export default function CardsFigure({ CardImg }: { CardImg: Card[] }) {
   const { containerRef, cards } = useCards({ CardImg });
 
   return (

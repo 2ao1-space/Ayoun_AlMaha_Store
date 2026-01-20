@@ -19,7 +19,7 @@ export default function Header() {
   const draggableInstance = useRef<Draggable | null>(null);
   const [activeMenu, setActiveMenu] = useState<number | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const searchBarRef = useRef<HTMLDivElement>(null);
+  const searchBarRef = useRef<HTMLDivElement | null>(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
 
   const handleMenuClick = useCallback((index: number) => {
@@ -28,7 +28,7 @@ export default function Header() {
 
   const closeMenu = useCallback(() => {
     if (draggableInstance.current) {
-      draggableInstance.current.endDrag();
+      draggableInstance.current.endDrag(new Event("mouseup"));
       gsap.to(menuDragRef.current, {
         x: 0,
         duration: 0.6,
@@ -64,7 +64,7 @@ export default function Header() {
 
   const handleMouseLeave = () => {
     if (draggableInstance.current) {
-      draggableInstance.current.endDrag();
+      draggableInstance.current.endDrag(new Event("mouseleave"));
       gsap.to(menuDragRef.current, {
         x: 0,
         duration: 0.6,
@@ -176,9 +176,9 @@ function NavBar({ handleMenuClick, menu, activeMenu }: NavBarProps) {
 
 interface MenuCarouselProps {
   draggableInstance: React.MutableRefObject<Draggable | null>;
-  menuWrapperRef: React.RefObject<HTMLDivElement>;
+  menuWrapperRef: React.RefObject<HTMLDivElement | null>;
   activeMenu: number | null;
-  menuDragRef: React.RefObject<HTMLDivElement>;
+  menuDragRef: React.RefObject<HTMLDivElement | null>;
   menu: MenuSection[];
   onClose: () => void;
   onMouseLeave: () => void;
@@ -282,7 +282,7 @@ interface AsideBarProps {
   children: React.ReactNode;
 }
 
-export function AsideBar({ open, onClose, children }: AsideBarProps) {
+export function AsideBar({ onClose, children }: AsideBarProps) {
   const asideRef = useRef<HTMLDivElement>(null);
   const layersRef = useRef<HTMLDivElement[]>([]);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -470,7 +470,7 @@ function MobileMenu({ menu, onClose }: MobileMenuProps) {
 
           return (
             <li key={i}>
-              <Link href={link.url} target="_blank">
+              <Link href={typeof link.url === 'string' ? link.url : link.url[0]} target="_blank">
                 <Icon className="w-5 text-gray-800 hover:text-darkness transition-colors" />
               </Link>
             </li>
@@ -482,7 +482,7 @@ function MobileMenu({ menu, onClose }: MobileMenuProps) {
 }
 
 interface SearchBtnProps {
-  searchBarRef: React.RefObject<HTMLDivElement>;
+  searchBarRef: React.RefObject<HTMLDivElement | null>;
 }
 
 function SearchBtn({ searchBarRef }: SearchBtnProps) {

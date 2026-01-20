@@ -3,35 +3,46 @@
 import { useRef, useState } from "react";
 import CarouselBlock from "./carousel";
 import useCarousel from "../../hooks/carouselAnimation";
+import { Product } from "./carousel";
 
-interface GlassesItem {
-  id: number;
-  title: string;
-  gender: "men" | "women";
-  tag: "best" | "new" | "sale";
-}
+// interface GlassesItem {
+//   id: number;
+//   title: string;
+//   gender: "men" | "women";
+//   tag: "best" | "new" | "sale";
+// }
 
-const medicalGlasses: GlassesItem[] = Array.from({ length: 20 }).map(
-  (_, i) => ({
-    id: i,
-    title: `طبي ${i + 1}`,
-    gender: i % 2 === 0 ? "men" : "women",
-    tag: i % 3 === 0 ? "best" : i % 3 === 1 ? "new" : "sale",
-  }),
-);
-
-const sunGlasses: GlassesItem[] = Array.from({ length: 20 }).map((_, i) => ({
-  id: i,
-  title: `شمس ${i + 1}`,
+const medicalGlasses: Product[] = Array.from({ length: 20 }).map((_, i) => ({
+  id: `${i}`,
+  title: `طبي ${i + 1}`,
+  brand: "Al Maha",
   gender: i % 2 === 0 ? "men" : "women",
   tag: i % 3 === 0 ? "best" : i % 3 === 1 ? "new" : "sale",
+  category: "medical",
+  description: "وصف المنتج",
+  price: 350,
+  discount_price: 299,
+  main_image: "/images/product_2.png",
+}));
+
+const sunGlasses: Product[] = Array.from({ length: 20 }).map((_, i) => ({
+  id: `${i}`,
+  title: `شمس ${i + 1}`,
+  brand: "Al Maha",
+  gender: i % 2 === 0 ? "men" : "women",
+  tag: i % 3 === 0 ? "best" : i % 3 === 1 ? "new" : "sale",
+  category: "sun",
+  description: "وصف المنتج",
+  price: 350,
+  discount_price: 299,
+  main_image: "/images/product_2.png",
 }));
 
 interface VeiwTopProductsProps {
   virtualTry: boolean;
   setVirtualTry: (value: boolean) => void;
-  selectedGlasses: any;
-  setSelectedGlasses: (value: any) => void;
+  selectedGlasses: Product | null;
+  setSelectedGlasses: (value: Product | null) => void;
 }
 
 export default function VeiwTopProducts({
@@ -44,7 +55,7 @@ export default function VeiwTopProducts({
   const [sunFilter, setSunFilter] = useState<string | null>(null);
   const [medicalIndex, setMedicalIndex] = useState(0);
   const [sunIndex, setSunIndex] = useState(0);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
   const medicalRef = useRef<HTMLDivElement | null>(null);
@@ -66,7 +77,7 @@ export default function VeiwTopProducts({
   type SlideDirection = "left" | "right";
 
   const slide = (
-    ref: React.RefObject<HTMLDivElement>,
+    ref: React.RefObject<HTMLDivElement | null>,
     dir: SlideDirection,
     setIndex: (index: number) => void,
   ) => {
@@ -90,7 +101,7 @@ export default function VeiwTopProducts({
       window.location.href =
         type === "eye" ? "/medical-glasses" : "/sunglasses";
     } else {
-      setShowLoginModal(true);
+      setShowLoginModal(!showLoginModal);
     }
   };
 

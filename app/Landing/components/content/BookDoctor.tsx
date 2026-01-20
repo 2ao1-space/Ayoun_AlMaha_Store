@@ -1,7 +1,13 @@
 import Link from "next/link";
 import CardsFigure from "./CardsFigure";
 
-export default function BookDoctor({ Doctors }) {
+import type { Card } from "./CardsFigure";
+
+interface BookDoctorProps {
+  Doctors: Card[];
+}
+
+export default function BookDoctor({ Doctors }: BookDoctorProps) {
   return (
     <section className="h-full md:h-screen p-4 font-lyon flex flex-col md:flex-row justify-center items-center">
       <div

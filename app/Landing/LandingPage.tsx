@@ -22,6 +22,7 @@ type DoctorType = { id: number; src: string };
 export default function LandingPage() {
   const [virtualTry, setVirtualTry] = useState(false);
   const [selectedGlasses, setSelectedGlasses] = useState<Product | null>(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const brands = [
     "Ray-Ban",
@@ -122,6 +123,8 @@ export default function LandingPage() {
             setVirtualTry(false);
             setSelectedGlasses(null);
           }}
+          showLoginModal={showLoginModal}
+          setShowLoginModal={setShowLoginModal}
         />
       )}
     </main>

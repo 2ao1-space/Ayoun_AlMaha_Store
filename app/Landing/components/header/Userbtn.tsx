@@ -51,6 +51,8 @@ function UserBtn({ showUserMenu, setShowUserMenu }: UserBtnProps) {
             .eq("id", user.id)
             .single();
 
+          console.log(error);
+
           if (profile) {
             setUserProfile({
               id: user.id,

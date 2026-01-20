@@ -69,7 +69,10 @@ export default function Footer() {
 
               return (
                 <li key={i}>
-                  <Link href={link.url} target="_blank">
+                  <Link
+                    href={typeof link.url === "string" ? link.url : ""}
+                    target="_blank"
+                  >
                     <Icon className="w-5 text-white hover:text-white/70 transition-colors" />
                   </Link>
                 </li>

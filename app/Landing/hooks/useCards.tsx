@@ -7,7 +7,11 @@ interface Card {
   src: string;
 }
 
-export default function useCards({ CardImg }) {
+interface UseCardsProps {
+  CardImg: Card[];
+}
+
+export default function useCards({ CardImg }: UseCardsProps) {
   const [isAnimating, setIsAnimating] = useState(false);
   const [cards, setCards] = useState<Card[]>(CardImg);
 
@@ -20,7 +24,7 @@ export default function useCards({ CardImg }) {
       const animateTopCard = () => {
         setIsAnimating(true);
         const topCard = containerRef.current?.querySelector(
-          `[data-card-index="0"]`
+          `[data-card-index="0"]`,
         );
         if (!topCard) {
           setIsAnimating(false);
@@ -76,7 +80,7 @@ export default function useCards({ CardImg }) {
 
       animateTopCard();
     },
-    { dependencies: [isAnimating, cards], scope: containerRef }
+    { dependencies: [isAnimating, cards], scope: containerRef },
   );
   return { containerRef, cards };
 }

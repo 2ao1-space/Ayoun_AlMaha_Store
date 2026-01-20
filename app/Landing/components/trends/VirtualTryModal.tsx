@@ -8,7 +8,7 @@ interface VirtualTryModalProps {
   glasses: Product;
   onClose: () => void;
   showLoginModal: boolean;
-  setShowLoginModal: () => void;
+  setShowLoginModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export default function VirtualTryModal({
@@ -163,7 +163,7 @@ export default function VirtualTryModal({
               <Bookmark className="w-4" />
             </button>
             <button
-              onClick={() => setShowLoginModal(true)}
+              onClick={() => setShowLoginModal(!showLoginModal)}
               className="flex items-center border border-darkness/50 rounded-lg flex-1 px-3 py-1 gap-6 font-lifta text-yellow-500"
             >
               <ShoppingBag className="w-4" />

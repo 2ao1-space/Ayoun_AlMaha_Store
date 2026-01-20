@@ -189,7 +189,7 @@ export default function CarouselBlock({
           ))}
 
           <button
-            onClick={handleViewMore}
+            onClick={() => handleViewMore("products")}
             className="w-[220px] lg:w-[260px] flex-shrink-0 h-[250px] md:h-[330px] lg:h-[400px] bg-light p-4 border group relative hover:border-amber-500 transition-all"
           >
             <div className="p-4 w-full flex items-center justify-center h-full">
