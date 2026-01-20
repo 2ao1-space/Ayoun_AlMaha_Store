@@ -1,8 +1,8 @@
 import Image from "next/image";
 import useCards from "../../hooks/useCards";
 
-export default function CardsFigure() {
-  const { containerRef, cards } = useCards();
+export default function CardsFigure({ CardImg }) {
+  const { containerRef, cards } = useCards({ CardImg });
 
   return (
     <div className="w-full h-full flex justify-center items-center relative py-20">

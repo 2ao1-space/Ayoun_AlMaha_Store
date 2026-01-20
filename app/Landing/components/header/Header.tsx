@@ -1,41 +1,70 @@
 "use client";
 
 import data from "../../data/data.json";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
-import {
-  ArrowUpRight,
-  ChevronDown,
-  Equal,
-  LogIn,
-  LogOut,
-  Search,
-  User,
-  UserPlus,
-  X,
-} from "lucide-react";
-
+import { ArrowUpRight, ChevronDown, Equal, Search, X } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-import { Draggable } from "gsap/all";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ScrollToPlugin } from "gsap/ScrollToPlugin";
+import { Draggable, ScrollTrigger, ScrollToPlugin } from "gsap/all";
 import { iconsMap, MenuSection } from "../types/LandingTypes";
+import UserBtn from "./Userbtn";
 
 gsap.registerPlugin(ScrollToPlugin, Draggable, ScrollTrigger);
 
 export default function Header() {
   const headerRef = useRef<HTMLElement>(null);
-
-  //   menu
-  const menuWrapperRef = useRef(null);
-  const menuDragRef = useRef(null);
-  const draggableInstance = useRef<InstanceType<typeof Draggable> | null>(null);
+  const menuWrapperRef = useRef<HTMLDivElement>(null);
+  const menuDragRef = useRef<HTMLDivElement>(null);
+  const draggableInstance = useRef<Draggable | null>(null);
   const [activeMenu, setActiveMenu] = useState<number | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const searchBarRef = useRef<HTMLDivElement>(null);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+
+  const handleMenuClick = useCallback((index: number) => {
+    setActiveMenu((prev) => (prev === index ? null : index));
+  }, []);
+
+  const closeMenu = useCallback(() => {
+    if (draggableInstance.current) {
+      draggableInstance.current.endDrag();
+      gsap.to(menuDragRef.current, {
+        x: 0,
+        duration: 0.6,
+        ease: "power3.out",
+      });
+    }
+    setActiveMenu(null);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        activeMenu !== null &&
+        menuWrapperRef.current &&
+        !menuWrapperRef.current.contains(event.target as Node) &&
+        headerRef.current &&
+        !headerRef.current.contains(event.target as Node)
+      ) {
+        closeMenu();
+      }
+    };
+
+    if (activeMenu !== null) {
+      setTimeout(() => {
+        document.addEventListener("mousedown", handleClickOutside);
+      }, 100);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [activeMenu, closeMenu]);
 
   const handleMouseLeave = () => {
     if (draggableInstance.current) {
-      draggableInstance.current.endDrag(new Event("endDrag"));
+      draggableInstance.current.endDrag();
       gsap.to(menuDragRef.current, {
         x: 0,
         duration: 0.6,
@@ -45,35 +74,26 @@ export default function Header() {
     setActiveMenu(null);
   };
 
-  // mobile menu
-  const [menuOpen, setMenuOpen] = useState(false);
-
-  // user & search
-  const userMenuRef = useRef(null);
-  const searchBarRef = useRef(null);
-  const [showUserMenu, setShowUserMenu] = useState(false);
-
   return (
     <>
       <header
         ref={headerRef}
-        onMouseLeave={handleMouseLeave}
-        className="fixed top-0 z-50 w-full bg-light font-lyon"
+        className="fixed top-0 z-40 w-full bg-light font-lyon"
       >
         <div className="container mx-auto p-4 relative">
           <div className="flex justify-between items-center relative">
             <Logo />
-
-            <NavBar setActiveMenu={setActiveMenu} menu={data.menu} />
-
+            <NavBar
+              handleMenuClick={handleMenuClick}
+              menu={data.menu}
+              activeMenu={activeMenu}
+            />
             <div className="lg:w-1/3 flex gap-3 justify-end items-center relative">
               <SearchBtn searchBarRef={searchBarRef} />
-
               <UserBtn
                 showUserMenu={showUserMenu}
                 setShowUserMenu={setShowUserMenu}
               />
-
               <MenuButton
                 open={menuOpen}
                 onToggle={(open) => setMenuOpen(open)}
@@ -88,25 +108,15 @@ export default function Header() {
           activeMenu={activeMenu}
           menuDragRef={menuDragRef}
           menu={data.menu}
+          onClose={closeMenu}
+          onMouseLeave={handleMouseLeave}
         />
       </header>
 
       {menuOpen && (
-        <MobileAside open={menuOpen} onClose={() => setMenuOpen(!menuOpen)}>
-          <MobileMenu menu={data.menu} />
-        </MobileAside>
-      )}
-      {showUserMenu && (
-        <MobileAside
-          open={showUserMenu}
-          onClose={() => setShowUserMenu(!showUserMenu)}
-        >
-          <AuthLogin
-            userMenuRef={userMenuRef}
-            showUserMenu={showUserMenu}
-            setShowUserMenu={setShowUserMenu}
-          />
-        </MobileAside>
+        <AsideBar open={menuOpen} onClose={() => setMenuOpen(false)}>
+          <MobileMenu menu={data.menu} onClose={() => setMenuOpen(false)} />
+        </AsideBar>
       )}
     </>
   );
@@ -123,25 +133,37 @@ function Logo() {
   };
 
   return (
-    <Link
-      onClick={scrollToTop}
-      href="/"
-      className="relative top-0 text-xl lg:text-2xl font-lifta w-1/2 md:w-1/3"
-    >
-      عيون المها
-    </Link>
+    <div className=" w-1/2 md:w-1/3">
+      <Link
+        onClick={scrollToTop}
+        href="/"
+        className="relative top-0 text-xl lg:text-2xl font-lifta "
+      >
+        عيون المها
+      </Link>
+    </div>
   );
 }
 
-function NavBar({ setActiveMenu, menu }) {
+interface NavBarProps {
+  handleMenuClick: (index: number) => void;
+  menu: MenuSection[];
+  activeMenu: number | null;
+}
+
+function NavBar({ handleMenuClick, menu, activeMenu }: NavBarProps) {
   return (
     <div className="hidden lg:block relative md:1/2 lg:w-1/3">
-      <ul className="flex items-center ">
+      <ul className="flex items-center">
         {menu.map((menuItem, i) => (
-          <li key={i} className="flex-1">
+          <li key={i} className="">
             <button
-              onMouseEnter={() => setActiveMenu(i)}
-              className="w-full inline-flex items-center justify-center gap-2 font-medium px-4 py-3 hover:text-amber-600 transition-colors"
+              onClick={() => handleMenuClick(i)}
+              className={`w-full inline-flex items-center justify-center gap-2 font-medium px-4 py-3 transition-colors leading-20 ${
+                activeMenu === i
+                  ? "text-amber-600 font-semibold"
+                  : "hover:text-amber-600"
+              }`}
             >
               <span>{menuItem.title}</span>
             </button>
@@ -152,13 +174,25 @@ function NavBar({ setActiveMenu, menu }) {
   );
 }
 
+interface MenuCarouselProps {
+  draggableInstance: React.MutableRefObject<Draggable | null>;
+  menuWrapperRef: React.RefObject<HTMLDivElement>;
+  activeMenu: number | null;
+  menuDragRef: React.RefObject<HTMLDivElement>;
+  menu: MenuSection[];
+  onClose: () => void;
+  onMouseLeave: () => void;
+}
+
 function MenuCarousel({
   draggableInstance,
   menuWrapperRef,
   activeMenu,
   menuDragRef,
   menu,
-}) {
+  onClose,
+  onMouseLeave,
+}: MenuCarouselProps) {
   useEffect(() => {
     if (activeMenu !== null && menuDragRef.current && menuWrapperRef.current) {
       const timeout = setTimeout(() => {
@@ -166,13 +200,15 @@ function MenuCarousel({
           draggableInstance.current.kill();
         }
 
-        draggableInstance.current = Draggable.create(menuDragRef.current, {
+        const instances = Draggable.create(menuDragRef.current, {
           type: "x",
           inertia: true,
           bounds: menuWrapperRef.current,
           dragResistance: 0.3,
           edgeResistance: 0.8,
-        })[0];
+        });
+
+        draggableInstance.current = instances[0];
       }, 100);
 
       return () => clearTimeout(timeout);
@@ -182,6 +218,7 @@ function MenuCarousel({
   return (
     <div
       ref={menuWrapperRef}
+      onMouseLeave={onMouseLeave}
       className={`relative top-full left-0 right-0 shadow-md bg-light w-full h-[300px] overflow-hidden transition-all duration-300 ease-out ${
         activeMenu !== null
           ? "max-h-[450px] opacity-100 translate-y-0"
@@ -191,27 +228,27 @@ function MenuCarousel({
       <div className="container mx-auto h-[300px] overflow-hidden">
         <div
           ref={menuDragRef}
-          className="flex gap-4 px-10 py-6 h-full select-none cursor-grab active:cursor-grabbing "
+          className="flex gap-4 px-10 py-6 h-full select-none cursor-grab active:cursor-grabbing"
           style={{ width: "max-content" }}
         >
           {activeMenu !== null &&
             menu[activeMenu].items.map((item, i) => (
               <div
                 key={i}
-                // href={item.href}
                 className="min-w-[400px] h-full shrink-0 rounded-xl p-4 flex items-end bg-cover bg-center border hover:shadow-lg transition-all duration-300 relative overflow-hidden group"
                 style={{ backgroundImage: `url(${item.image})` }}
               >
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent group-hover:from-black/80 transition-all" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent group-hover:from-black/90 transition-all" />
                 <Link
                   href={item.href}
+                  onClick={onClose}
                   className="w-full flex justify-between items-end"
                 >
                   <span className="relative z-10 text-white font-semibold text-xl">
                     {item.name}
                   </span>
 
-                  <span className="bg-darkness text-white p-1 rounded-full relative z-10 group-hover:bg-yellow-600 transition-colors group-hover:scale-150 duration-300">
+                  <span className="bg-darkness text-white p-1 rounded-full relative z-10 group-hover:bg-yellow-600 transition-colors group-hover:scale-110 duration-300">
                     <ArrowUpRight />
                   </span>
                 </Link>
@@ -223,13 +260,12 @@ function MenuCarousel({
   );
 }
 
-function MenuButton({
-  open,
-  onToggle,
-}: {
+interface MenuButtonProps {
   open: boolean;
   onToggle: (open: boolean) => void;
-}) {
+}
+
+function MenuButton({ open, onToggle }: MenuButtonProps) {
   return (
     <button
       onClick={() => onToggle(!open)}
@@ -240,15 +276,13 @@ function MenuButton({
   );
 }
 
-function MobileAside({
-  open,
-  onClose,
-  children,
-}: {
+interface AsideBarProps {
   open: boolean;
   onClose: () => void;
   children: React.ReactNode;
-}) {
+}
+
+export function AsideBar({ open, onClose, children }: AsideBarProps) {
   const asideRef = useRef<HTMLDivElement>(null);
   const layersRef = useRef<HTMLDivElement[]>([]);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -273,7 +307,7 @@ function MobileAside({
           duration: 0.45,
           ease: "power4.out",
         },
-        "-=0.25"
+        "-=0.25",
       )
       .to(layersRef.current, {
         xPercent: 0,
@@ -289,20 +323,21 @@ function MobileAside({
           duration: 0.4,
           ease: "power3.out",
         },
-        "-=0.15"
+        "-=0.15",
       );
   }, []);
 
   return (
     <aside className="fixed w-full right-0 left-0 inset-0 z-50 flex justify-end items-end">
-      {/* md:w-1/2 */}
       <div onClick={onClose} className="absolute inset-0 w-full bg-black/30" />
 
-      <div className="absolute w-full md:w-1/2 mr-auto flex justify-end inset-0 left-0  pointer-events-none">
+      <div className="absolute w-full md:w-1/2 mr-auto flex justify-end inset-0 left-0 pointer-events-none">
         {["#f5f5f5", "#e5e5e5", "#d4d4d4"].map((color, i) => (
           <div
             key={i}
-            ref={(el) => el && (layersRef.current[i] = el)}
+            ref={(el) => {
+              if (el) layersRef.current[i] = el;
+            }}
             className="absolute inset-0"
             style={{ backgroundColor: color }}
           />
@@ -315,7 +350,7 @@ function MobileAside({
       >
         <button
           onClick={onClose}
-          className="absolute top-4 left-4 px-2 py-1 bg-red-300 rounded-full"
+          className="absolute top-4 left-4 px-2 py-1 bg-red-300 rounded-full hover:bg-red-400 transition-colors"
         >
           <X className="w-4" />
         </button>
@@ -327,21 +362,30 @@ function MobileAside({
   );
 }
 
-function MobileMenu({ menu }: { menu: MenuSection[] }) {
+interface MobileMenuProps {
+  menu: MenuSection[];
+  onClose: () => void;
+}
+
+function MobileMenu({ menu, onClose }: MobileMenuProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const contentRefs = useRef<HTMLDivElement[]>([]);
 
-  const closeItem = (index: number) => {
-    return gsap.to(contentRefs.current[index], {
+  const closeItem = useCallback((index: number) => {
+    const el = contentRefs.current[index];
+    if (!el) return;
+
+    return gsap.to(el, {
       height: 0,
       opacity: 0,
       duration: 0.3,
       ease: "power3.inOut",
     });
-  };
+  }, []);
 
-  const openItem = (index: number) => {
+  const openItem = useCallback((index: number) => {
     const el = contentRefs.current[index];
+    if (!el) return;
 
     gsap.set(el, { height: "auto", opacity: 1 });
     const height = el.offsetHeight;
@@ -355,92 +399,102 @@ function MobileMenu({ menu }: { menu: MenuSection[] }) {
         duration: 0.45,
         ease: "power3.out",
         clearProps: "height",
-      }
+      },
     );
-  };
+  }, []);
 
-  const toggle = (index: number) => {
-    if (openIndex === index) {
-      closeItem(index);
-      setOpenIndex(null);
-      return;
-    }
+  const toggle = useCallback(
+    (index: number) => {
+      setOpenIndex((prev) => {
+        if (prev === index) {
+          closeItem(index);
+          return null;
+        }
 
-    if (openIndex !== null) {
-      closeItem(openIndex);
-    }
+        if (prev !== null) {
+          closeItem(prev);
+        }
 
-    setOpenIndex(index);
-    openItem(index);
-  };
+        openItem(index);
+        return index;
+      });
+    },
+    [closeItem, openItem],
+  );
 
   return (
-    <>
-      <nav className="space-y-4 relative h-full">
-        {menu.map((section, index) => (
-          <div key={section.title}>
-            <button
-              onClick={() => toggle(index)}
-              className="w-full flex justify-between items-center py-3 font-semibold text-lg"
+    <nav className="space-y-4 relative h-full">
+      {menu.map((section, index) => (
+        <div key={section.title}>
+          <button
+            onClick={() => toggle(index)}
+            className="w-full flex justify-between items-center py-3 font-semibold text-lg"
+          >
+            {section.title}
+            <span
+              className={`transition-transform duration-300 ${
+                openIndex === index ? "rotate-180" : ""
+              }`}
             >
-              {section.title}
-              <span
-                className={`transition-transform duration-300 ${
-                  openIndex === index ? "rotate-180" : ""
-                }`}
-              >
-                <ChevronDown className="w-4" />
-              </span>
-            </button>
+              <ChevronDown className="w-4" />
+            </span>
+          </button>
 
-            <div
-              ref={(el) => el && (contentRefs.current[index] = el)}
-              className="overflow-hidden"
-              style={{ height: 0, opacity: 0 }}
-            >
-              <ul className="pl-4 pb-3 space-y-2">
-                {section.items.map((item) => (
-                  <li key={item.name}>
-                    <Link
-                      href={item.href}
-                      className="block py-1 text-gray-600 hover:text-black"
-                    >
-                      {item.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
+          <div
+            ref={(el) => {
+              if (el) contentRefs.current[index] = el;
+            }}
+            className="overflow-hidden"
+            style={{ height: 0, opacity: 0 }}
+          >
+            <ul className="pl-4 pb-3 space-y-2">
+              {section.items.map((item) => (
+                <li key={item.name}>
+                  <Link
+                    href={item.href}
+                    onClick={onClose}
+                    className="block py-1 text-gray-600 hover:text-black"
+                  >
+                    {item.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
-        ))}
+        </div>
+      ))}
 
-        <ul className="flex justify-between gap-8 pb-4 pt-20">
-          {data.menuSocial.map((link, i) => {
-            const Icon = iconsMap[link.icon as keyof typeof iconsMap];
+      <ul className="flex justify-between gap-8 pb-4 pt-20">
+        {data.menuSocial.map((link, i) => {
+          const Icon = iconsMap[link.icon as keyof typeof iconsMap];
 
-            return (
-              <li key={i}>
-                <Link href={link.url} target="_blank">
-                  <Icon className="w-5 text-gray-800 hover:text-darkness transition-colors" />
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
-    </>
+          return (
+            <li key={i}>
+              <Link href={link.url} target="_blank">
+                <Icon className="w-5 text-gray-800 hover:text-darkness transition-colors" />
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
   );
 }
 
-function SearchBtn({ searchBarRef }) {
+interface SearchBtnProps {
+  searchBarRef: React.RefObject<HTMLDivElement>;
+}
+
+function SearchBtn({ searchBarRef }: SearchBtnProps) {
   const [showSearch, setShowSearch] = useState(false);
+
   useGSAP(() => {
     if (searchBarRef.current) {
       if (showSearch) {
         gsap.fromTo(
           searchBarRef.current,
           { width: 0, opacity: 0 },
-          { width: "300px", opacity: 1, duration: 0.5, ease: "power3.out" }
+          { width: "300px", opacity: 1, duration: 0.5, ease: "power3.out" },
         );
       } else {
         gsap.to(searchBarRef.current, {
@@ -452,6 +506,7 @@ function SearchBtn({ searchBarRef }) {
       }
     }
   }, [showSearch]);
+
   return (
     <div className="relative flex flex-col-reverse md:flex-row justify-end w-full">
       {showSearch && (
@@ -480,92 +535,6 @@ function SearchBtn({ searchBarRef }) {
       >
         <Search size={22} />
       </button>
-    </div>
-  );
-}
-
-function UserBtn({ showUserMenu, setShowUserMenu }) {
-  return (
-    <button
-      onClick={() => setShowUserMenu(!showUserMenu)}
-      className="p-2.5 rounded-full transition-all duration-300 hover:scale-110 active:scale-95"
-    >
-      <User size={22} />
-    </button>
-  );
-}
-
-function AuthLogin({ userMenuRef, showUserMenu, setShowUserMenu }) {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  const handleLogin = () => {
-    setIsLoggedIn(true);
-    alert("تم تسجيل الدخول بنجاح!");
-  };
-
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setShowUserMenu(false);
-    alert("تم تسجيل الخروج");
-  };
-
-  const handleRegister = () => {
-    alert("فتح صفحة التسجيل");
-  };
-  return (
-    <div
-      onClick={() => setShowUserMenu(!showUserMenu)}
-      ref={userMenuRef}
-      className="fixed z-50 inset-0 left-0 top-0 h-screen bg-darkness/50 flex justify-end"
-      // style={{ opacity: 0 }}
-    >
-      <div className="w-full relative bg-white">
-        {/* <button
-          onClick={() => setShowUserMenu(!showUserMenu)}
-          className="absolute top-4 right-4"
-        >
-          <X size={24} />
-        </button> */}
-        {isLoggedIn ? (
-          <div className="space-y-3 my-10">
-            <div className="pb-3 border-b border-gray-200">
-              <p className="font-semibold text-gray-800">مرحباً، محمد</p>
-              <p className="text-sm text-gray-500">user@example.com</p>
-            </div>
-            <a
-              href="/profile"
-              className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <User size={18} />
-              <span>حسابي</span>
-            </a>
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center gap-2 p-2 hover:bg-red-50 text-red-600 rounded-lg transition-colors"
-            >
-              <LogOut size={18} />
-              <span>تسجيل الخروج</span>
-            </button>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            <button
-              onClick={handleLogin}
-              className="w-full flex items-center justify-center gap-2 p-3 bg-amber-500 rounded-lg hover:bg-amber-600 transition-all duration-300 hover:scale-105 active:scale-95"
-            >
-              <LogIn size={18} />
-              <span>تسجيل الدخول</span>
-            </button>
-            <button
-              onClick={handleRegister}
-              className="w-full flex items-center justify-center gap-2 p-3 border-2 border-amber-500 text-amber-600 rounded-lg hover:bg-amber-50 transition-all duration-300 hover:scale-105 active:scale-95"
-            >
-              <UserPlus size={18} />
-              <span>إنشاء حساب جديد</span>
-            </button>
-          </div>
-        )}
-      </div>
     </div>
   );
 }

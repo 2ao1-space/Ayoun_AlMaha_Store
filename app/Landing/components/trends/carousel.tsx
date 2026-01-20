@@ -1,25 +1,33 @@
-import {
-  ArrowLeft,
-  ArrowRight,
-  Camera,
-  ChevronLeft,
-  ChevronRight,
-  ScanFace,
-  X,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
-interface CarouselItem {
-  id: string | number;
+interface ColorVariant {
+  id: string;
+  color_name: string;
+  color_hex: string;
+  image_url: string;
+  stock: number;
+  is_available: boolean;
+}
+
+export interface Product {
+  id: string;
   title: string;
-  gender: "men" | "women";
+  brand: string;
+  gender: "men" | "women" | "unisex";
   tag: "best" | "new" | "sale";
+  category: "medical" | "sun" | "sports";
+  description: string;
+  price: number;
+  discount_price?: number;
+  main_image: string;
+  color_variants?: ColorVariant[];
 }
 
 interface CarouselBlockProps {
   title: string;
-  items: CarouselItem[];
+  items: Product[];
   filter: string | null;
   setFilter: (filter: string | null) => void;
   trackRef: React.RefObject<HTMLDivElement | null>;
@@ -27,10 +35,10 @@ interface CarouselBlockProps {
   onRight: () => void;
   cardIndex: number;
   handleViewMore: (type: string) => void;
-  showLoginModal: boolean;
-  setShowLoginModal: () => void;
-  tryNow: boolean;
-  setTryNow: () => void;
+  virtualTry: boolean;
+  setVirtualTry: (value: boolean) => void;
+  selectedGlasses: Product | null;
+  setSelectedGlasses: (item: Product) => void;
 }
 
 export default function CarouselBlock({
@@ -43,357 +51,405 @@ export default function CarouselBlock({
   onRight,
   cardIndex,
   handleViewMore,
-  showLoginModal,
-  setShowLoginModal,
-  tryNow,
-  setTryNow,
+  setVirtualTry,
+  setSelectedGlasses,
 }: CarouselBlockProps) {
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+
   const filterControls = [
-    {
-      label: "الكل",
-      value: null,
-      action: () => setFilter(null),
-    },
-    {
-      label: "الأكثر مبيعًا",
-      value: "best",
-      action: () => setFilter("best"),
-    },
-    {
-      label: "جديد",
-      value: "new",
-      action: () => setFilter("new"),
-    },
-    {
-      label: "مخفض",
-      value: "sale",
-      action: () => setFilter("sale"),
-    },
+    { label: "الكل", value: null, action: () => setFilter(null) },
+    { label: "الأكثر مبيعًا", value: "best", action: () => setFilter("best") },
+    { label: "جديد", value: "new", action: () => setFilter("new") },
+    { label: "مخفض", value: "sale", action: () => setFilter("sale") },
   ];
 
-  const [virtualTry, setVirtualTry] = useState(false);
-  const [selectedGlasses, setSelectedGlasses] = useState<CarouselItem | null>(
-    null
-  );
-
-  const handleVirtualTry = (item: CarouselItem) => {
+  const handleVirtualTry = (item: Product) => {
     setSelectedGlasses(item);
     setVirtualTry(true);
   };
 
-  return (
-    <>
-      <div className="md:py-10 font-lyon">
-        <div className="flex flex-col md:flex-row justify-center md:justify-between gap-2 md:gap-20 lg:items-end mb-4 lg:mb-10">
-          <h2 className="text-2xl lg:text-6xl font-lifta text-center md:text-start">
-            {title}
-          </h2>
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!trackRef.current) return;
+    setIsDragging(true);
+    setStartX(e.pageX - trackRef.current.offsetLeft);
+    setScrollLeft(trackRef.current.scrollLeft);
+    trackRef.current.style.cursor = "grabbing";
+  };
 
-          <ul className="flex justify-center">
-            {filterControls.map((control) => (
-              <li
-                key={control.value}
-                onClick={control.action}
-                className={`cursor-pointer transition-colors px-4 py-2 rounded-full
-              ${
-                filter === control.value
-                  ? "bg-white text-black"
-                  : "bg-light text-gray-600"
-              }`}
-              >
-                {control.label}
-              </li>
-            ))}
-          </ul>
-        </div>
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !trackRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - trackRef.current.offsetLeft;
+    const walk = (x - startX) * 2;
+    trackRef.current.scrollLeft = scrollLeft - walk;
+  };
 
-        <div className="relative pb-20 pt-4">
-          <div
-            ref={trackRef}
-            // className="flex overflow-x-auto scrollbar-hide cursor-grab select-none px-12"
-            className="flex overflow-x-auto scrollbar-hide md:px-4 lg:px-10"
-            style={{
-              WebkitOverflowScrolling: "auto",
-              scrollBehavior: "auto",
-              // WebkitOverflowScrolling: "touch",
-            }}
-          >
-            {items.map((item) => (
-              <>
-                <div
-                  key={item.id}
-                  className="w-[220px] lg:w-[260px] flex-shrink-0 h-[250px] md:h-[330px] lg:h-[400px] bg-light p-4 border border-gray-300 group relative"
-                >
-                  <Image
-                    src={`/images/product_2.png`}
-                    alt={item.title}
-                    width={150}
-                    height={200}
-                    className="object-contain h-full w-full"
-                  />
-
-                  <div className="absolute top-0 left-0 p-4 w-full flex flex-col justify-between h-full">
-                    <div className="w-full flex justify-between items-start">
-                      <span className="font-ksa text-sm">{item.title}</span>
-
-                      <ul className="flex -space-x-1">
-                        <li className="bg-red-200 w-4 h-4 rounded-full"></li>
-                        <li className="bg-red-300 w-4 h-4 rounded-full"></li>
-                        <li className="bg-red-400 w-4 h-4 rounded-full"></li>
-                        <li className="bg-red-500 w-4 h-4 rounded-full"></li>
-                      </ul>
-                    </div>
-                    <div className="w-full flex justify-between items-start">
-                      <button
-                        onClick={() => handleVirtualTry(item)}
-                        className="text-xs p-1 group-hover:bg-white/70 rounded-full"
-                      >
-                        جرب الآن
-                        {/* <ScanFace /> */}
-                      </button>
-                      {/* <button onClick={() => setTryNow(tryNow)}>جرب الآن</button> */}
-                      <span className="">
-                        299
-                        <sub className="line-through text-gray-500 mx-2">
-                          350
-                        </sub>
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* {tryNow && (
-                  <div className="absolute top-0  left-0">
-                    <button
-                      onClick={() => handleVirtualTry(item)}
-                      className="text-xs p-1 group-hover:bg-white/70 rounded-full"
-                    >
-                      <ScanFace />
-                    </button>
-                  </div>
-                )} */}
-                </div>
-              </>
-            ))}
-            <button
-              onClick={handleViewMore}
-              // href=<"/medical-glasses">
-              // href={"/medical-glasses"}
-              className="w-[220px] lg:w-[260px] flex-shrink-0 h-[250px] md:h-[330px] lg:h-[400px] bg-light p-4 border border-gray-300 group relative"
-            >
-              <div className="p-4 w-full flex items-center justify-start h-full">
-                <span className="font-ksa text-4xl rotate-90">عرض المزيد</span>
-              </div>
-            </button>
-          </div>
-
-          <div className="relative md:absolute top-1/2 -translate-y-1/2 w-full flex justify-between gap-10 items-center my-4 md:my-0 h-10 md:h-auto">
-            {cardIndex === 0 ? null : (
-              <button
-                onClick={onRight}
-                className="absolute right-0 bg-darkness/90 hover:bg-darkness border border-darkness px-2 py-1 shadow-lg rounded-full transition-all"
-              >
-                <ChevronRight className="w-4 text-white" />
-              </button>
-            )}
-            {cardIndex < items.length - 1 && (
-              <button
-                onClick={onLeft}
-                className="absolute left-0 bg-darkness/90 hover:bg-darkness border border-darkness px-2 py-1 shadow-lg rounded-full transition-all"
-              >
-                <ChevronLeft className="w-4 text-white" />
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-      {virtualTry && selectedGlasses && (
-        <VirtualTryModal
-          glasses={selectedGlasses}
-          onClose={() => {
-            setVirtualTry(false);
-            setSelectedGlasses(null);
-          }}
-        />
-      )}
-
-      {showLoginModal && (
-        <LoginModal onClose={() => setShowLoginModal(false)} />
-      )}
-    </>
-  );
-}
-
-interface VirtualTryModalProps {
-  glasses: CarouselItem;
-  onClose: () => void;
-}
-
-function VirtualTryModal({ glasses, onClose }: VirtualTryModalProps) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [stream, setStream] = useState<MediaStream | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const startCamera = async () => {
-      try {
-        const mediaStream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "user" },
-        });
-        setStream(mediaStream);
-        if (videoRef.current) {
-          videoRef.current.srcObject = mediaStream;
-        }
-      } catch (err) {
-        setError("لا يمكن الوصول للكاميرا");
-        console.error(err);
-      }
-    };
-
-    startCamera();
-
-    return () => {
-      if (stream) {
-        stream.getTracks().forEach((track) => track.stop());
-      }
-    };
-  }, []);
-
-  const handleClose = () => {
-    if (stream) {
-      stream.getTracks().forEach((track) => track.stop());
+  const handleMouseUp = () => {
+    setIsDragging(false);
+    if (trackRef.current) {
+      trackRef.current.style.cursor = "grab";
     }
-    onClose();
+  };
+
+  const handleMouseLeave = () => {
+    if (isDragging) {
+      setIsDragging(false);
+      if (trackRef.current) {
+        trackRef.current.style.cursor = "grab";
+      }
+    }
   };
 
   return (
-    <div
-      onClick={handleClose}
-      className="fixed inset-0 bg-black/70 flex justify-center items-center z-50"
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="bg-white p-8 rounded-lg relative w-2/3 h-2/3 flex flex-col"
-      >
-        <button
-          onClick={handleClose}
-          className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full"
+    <div className="md:py-10 font-lyon w-full">
+      <div className="flex flex-col md:flex-row justify-center md:justify-between gap-2 md:gap-20 lg:items-end mb-4 lg:mb-10">
+        <h2 className="text-2xl lg:text-6xl font-lifta text-center md:text-start">
+          {title}
+        </h2>
+
+        <ul className="flex justify-center flex-wrap gap-2">
+          {filterControls.map((control) => (
+            <li
+              key={control.value || "all"}
+              onClick={control.action}
+              className={`cursor-pointer transition-all duration-300 px-4 py-2 rounded-full ${
+                filter === control.value
+                  ? "bg-amber-500 text-white shadow-md"
+                  : "bg-light text-gray-600 hover:bg-gray-200"
+              }`}
+            >
+              {control.label}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="relative pb-10 pt-4">
+        <div
+          ref={trackRef}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseLeave}
+          className="flex overflow-x-auto scrollbar-hide md:px-4 lg:px-10 select-none cursor-grab gap-4"
+          style={{
+            WebkitOverflowScrolling: "auto",
+            scrollBehavior: "auto",
+          }}
         >
-          <X size={24} />
-        </button>
-
-        <h2 className="text-2xl font-bold mb-4 text-center">تجربة افتراضية</h2>
-
-        <div className="flex-1 flex items-center justify-center bg-gray-900 rounded-lg overflow-hidden relative">
-          {error ? (
-            <div className="text-white text-center">
-              <Camera size={64} className="mx-auto mb-4" />
-              <p>{error}</p>
-            </div>
-          ) : (
-            <>
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                className="w-full h-full object-cover"
+          {items.map((item, i) => (
+            // <ProductCard
+            //   key={item.id}
+            //   item={item}
+            //   onTryNow={() => handleVirtualTry(item)}
+            // />
+            <div
+              key={i}
+              className="w-[220px] lg:w-[260px] flex-shrink-0 h-[250px] md:h-[330px] lg:h-[400px] bg-light p-4 border border-gray-300 group relative"
+              onDragStart={(e) => e.preventDefault()}
+            >
+              <Image
+                src={`/images/product_2.png`}
+                alt={item.title}
+                width={150}
+                height={200}
+                className="object-contain h-full w-full pointer-events-none"
+                draggable={false}
               />
 
-              {/* صورة النظارة في النص */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                <Image
-                  src="/images/product_2.png"
-                  alt={glasses.title}
-                  width={300}
-                  height={100}
-                  className="object-contain opacity-70"
-                />
-              </div>
-            </>
-          )}
-        </div>
+              <div className="absolute top-0 left-0 p-4 w-full flex flex-col justify-between h-full pointer-events-none">
+                <div className="w-full flex justify-between items-start">
+                  <span className="font-ksa text-sm select-none">
+                    {item.title}
+                  </span>
 
-        {/* بيانات النظارة */}
-        <div className="mt-4 bg-gray-100 p-4 rounded-lg">
-          <h3 className="font-bold text-lg mb-2">{glasses.title}</h3>
-          <div className="flex justify-between items-center">
-            <div className="flex gap-2">
-              <span className="text-sm text-gray-600">
-                النوع: {glasses.gender === "men" ? "رجالي" : "نسائي"}
+                  <ul className="flex -space-x-1">
+                    <li className="bg-red-200 w-4 h-4 rounded-full"></li>
+                    <li className="bg-red-300 w-4 h-4 rounded-full"></li>
+                    <li className="bg-red-400 w-4 h-4 rounded-full"></li>
+                    <li className="bg-red-500 w-4 h-4 rounded-full"></li>
+                  </ul>
+                </div>
+                <div className="w-full flex justify-between items-start">
+                  <button
+                    onClick={() => handleVirtualTry(item)}
+                    className="text-xs p-1 group-hover:bg-white/70 rounded-full pointer-events-auto"
+                  >
+                    جرب الآن
+                  </button>
+                  <span className="select-none">
+                    299
+                    <sub className="line-through text-gray-500 mx-2">350</sub>
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
+
+          <button
+            onClick={handleViewMore}
+            className="w-[220px] lg:w-[260px] flex-shrink-0 h-[250px] md:h-[330px] lg:h-[400px] bg-light p-4 border group relative hover:border-amber-500 transition-all"
+          >
+            <div className="p-4 w-full flex items-center justify-center h-full">
+              <span className="font-lifta text-3xl lg:text-4xl text-darkness group-hover:scale-110 transition-transform">
+                عرض المزيد ←
               </span>
             </div>
-            <div className="text-lg font-bold">
-              299 ج.م
-              <sub className="line-through text-gray-500 mx-2">350 ج.م</sub>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-2 text-center text-sm text-gray-600">
-          ضع النظارة على وجهك لرؤية كيف تبدو
-        </div>
-      </div>
-    </div>
-  );
-}
-
-interface LoginModalProps {
-  onClose: () => void;
-}
-
-function LoginModal({ onClose }: LoginModalProps) {
-  return (
-    <div
-      onClick={onClose}
-      className="fixed inset-0 bg-black/70 flex justify-center items-center z-50"
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="bg-white p-8 rounded-lg relative w-96"
-      >
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full"
-        >
-          <X size={24} />
-        </button>
-
-        <h2 className="text-2xl font-bold mb-6 text-center">تسجيل الدخول</h2>
-
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              البريد الإلكتروني
-            </label>
-            <input
-              type="email"
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
-              placeholder="أدخل بريدك الإلكتروني"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              كلمة المرور
-            </label>
-            <input
-              type="password"
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
-              placeholder="أدخل كلمة المرور"
-            />
-          </div>
-
-          <button className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-lg transition-colors">
-            تسجيل الدخول
           </button>
+        </div>
 
-          <div className="text-center text-sm text-gray-600">
-            ليس لديك حساب؟{" "}
-            <span className="text-amber-500 cursor-pointer hover:underline">
-              إنشاء حساب جديد
-            </span>
-          </div>
+        <div className="relative md:absolute top-1/2 -translate-y-1/2 w-full flex justify-between gap-10 items-center my-8 md:my-0 h-10 md:h-auto pointer-events-none">
+          {cardIndex === 0 ? null : (
+            <button
+              onClick={onRight}
+              className="absolute right-0 bg-darkness/90 hover:bg-darkness border border-darkness px-2 py-1 shadow-lg rounded-full transition-all pointer-events-auto"
+            >
+              <ChevronRight className="w-4 text-white" />
+            </button>
+          )}
+          {cardIndex < items.length - 1 && (
+            <button
+              onClick={onLeft}
+              className="absolute left-0 bg-darkness/90 hover:bg-darkness border border-darkness px-2 py-1 shadow-lg rounded-full transition-all pointer-events-auto"
+            >
+              <ChevronLeft className="w-4 text-white" />
+            </button>
+          )}
         </div>
       </div>
     </div>
   );
 }
+
+// interface ProductCardProps {
+//   item: Product;
+//   onTryNow: () => void;
+// }
+
+// function ProductCard({ item, onTryNow }: ProductCardProps) {
+//   const availableColors =
+//     item.color_variants?.filter((c) => c.is_available) || [];
+//   const totalStock = availableColors.reduce((sum, c) => sum + c.stock, 0);
+
+//   return (
+//     // <div
+//     //   className="w-[220px] lg:w-[260px] flex-shrink-0 h-[250px] md:h-[330px] lg:h-[400px] bg-light p-4 border border-gray-300 rounded-lg group relative overflow-hidden hover:shadow-xl transition-all duration-300"
+//     //   onDragStart={(e) => e.preventDefault()}
+//     // >
+//     //   {/* Sale Badge */}
+//     //   {item.tag === "sale" && item.discount_price && (
+//     //     <div className="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full font-bold z-10">
+//     //       خصم{" "}
+//     //       {Math.round(((item.price - item.discount_price) / item.price) * 100)}%
+//     //     </div>
+//     //   )}
+
+//     //   {/* New Badge */}
+//     //   {item.tag === "new" && (
+//     //     <div className="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full font-bold z-10">
+//     //       جديد
+//     //     </div>
+//     //   )}
+
+//     //   {/* Best Seller Badge */}
+//     //   {item.tag === "best" && (
+//     //     <div className="absolute top-2 right-2 bg-amber-500 text-white text-xs px-2 py-1 rounded-full font-bold z-10">
+//     //       الأكثر مبيعاً
+//     //     </div>
+//     //   )}
+
+//     //   {/* Product Image */}
+//     //   <div className="relative h-2/3">
+//     //     <Image
+//     //       src={item.main_image}
+//     //       alt={item.title}
+//     //       fill
+//     //       className="object-contain pointer-events-none"
+//     //       draggable={false}
+//     //     />
+//     //   </div>
+
+//     //   {/* Product Info Overlay */}
+//     //   <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-white via-white to-transparent">
+//     //     <div className="flex justify-between items-start mb-2">
+//     //       <div className="flex-1">
+//     //         <h3 className="font-semibold text-sm select-none truncate">
+//     //           {item.title}
+//     //         </h3>
+//     //         <p className="text-xs text-gray-500 select-none">{item.brand}</p>
+//     //       </div>
+
+//     //       {/* Available Colors */}
+//     //       {availableColors.length > 0 && (
+//     //         <div className="flex -space-x-1">
+//     //           {availableColors.slice(0, 4).map((color) => (
+//     //             <div
+//     //               key={color.id}
+//     //               className="w-4 h-4 rounded-full border-2 border-white shadow-sm"
+//     //               style={{ backgroundColor: color.color_hex }}
+//     //               title={color.color_name}
+//     //             />
+//     //           ))}
+//     //           {availableColors.length > 4 && (
+//     //             <div className="w-4 h-4 rounded-full border-2 border-white shadow-sm bg-gray-300 flex items-center justify-center text-[8px] font-bold">
+//     //               +{availableColors.length - 4}
+//     //             </div>
+//     //           )}
+//     //         </div>
+//     //       )}
+//     //     </div>
+
+//     //     {/* Price and CTA */}
+//     //     <div className="flex justify-between items-center">
+//     //       <button
+//     //         onClick={onTryNow}
+//     //         className="text-xs px-3 py-1 bg-amber-500 text-white rounded-full hover:bg-amber-600 transition-all pointer-events-auto font-medium"
+//     //       >
+//     //         جرب الآن
+//     //       </button>
+
+//     //       <div className="flex flex-col items-end select-none">
+//     //         {item.discount_price ? (
+//     //           <>
+//     //             <span className="text-sm font-bold text-amber-600">
+//     //               {item.discount_price} ج
+//     //             </span>
+//     //             <span className="text-xs line-through text-gray-400">
+//     //               {item.price} ج
+//     //             </span>
+//     //           </>
+//     //         ) : (
+//     //           <span className="text-sm font-bold">{item.price} ج</span>
+//     //         )}
+//     //       </div>
+//     //     </div>
+
+//     //     {/* Stock Indicator */}
+//     //     {totalStock < 10 && totalStock > 0 && (
+//     //       <div className="mt-2 text-xs text-red-500 font-medium">
+//     //         متبقي {totalStock} قطعة فقط!
+//     //       </div>
+//     //     )}
+//     //     {totalStock === 0 && (
+//     //       <div className="mt-2 text-xs text-gray-500 font-medium">
+//     //         غير متوفر حالياً
+//     //       </div>
+//     //     )}
+//     //   </div>
+//     // </div>
+//     <div className="md:py-10 font-lyon">
+//       <div className="flex flex-col md:flex-row justify-center md:justify-between gap-2 md:gap-20 lg:items-end mb-4 lg:mb-10">
+//         <h2 className="text-2xl lg:text-6xl font-lifta text-center md:text-start">
+//           {title}
+//         </h2>
+
+//         <ul className="flex justify-center">
+//           {filterControls.map((control) => (
+//             <li
+//               key={control.value || "all"}
+//               onClick={control.action}
+//               className={`cursor-pointer transition-colors px-4 py-2 rounded-full
+//           ${
+//             filter === control.value
+//               ? "bg-white text-black"
+//               : "bg-light text-gray-600"
+//           }`}
+//             >
+//               {control.label}
+//             </li>
+//           ))}
+//         </ul>
+//       </div>
+
+//       <div className="relative pb-20 pt-4">
+//         <div
+//           ref={trackRef}
+//           onMouseDown={handleMouseDown}
+//           onMouseMove={handleMouseMove}
+//           onMouseUp={handleMouseUp}
+//           onMouseLeave={handleMouseLeave}
+//           className="flex overflow-x-auto scrollbar-hide md:px-4 lg:px-10 select-none cursor-grab"
+//           style={{
+//             WebkitOverflowScrolling: "auto",
+//             scrollBehavior: "auto",
+//           }}
+//         >
+//           {items.map((item, i) => (
+//             <div
+//               key={i}
+//               className="w-[220px] lg:w-[260px] flex-shrink-0 h-[250px] md:h-[330px] lg:h-[400px] bg-light p-4 border border-gray-300 group relative"
+//               onDragStart={(e) => e.preventDefault()} // منع drag للصورة
+//             >
+//               <Image
+//                 src={`/images/product_2.png`}
+//                 alt={item.title}
+//                 width={150}
+//                 height={200}
+//                 className="object-contain h-full w-full pointer-events-none" // منع selection
+//                 draggable={false} // منع drag
+//               />
+
+//               <div className="absolute top-0 left-0 p-4 w-full flex flex-col justify-between h-full pointer-events-none">
+//                 <div className="w-full flex justify-between items-start">
+//                   <span className="font-ksa text-sm select-none">
+//                     {item.title}
+//                   </span>
+
+//                   <ul className="flex -space-x-1">
+//                     <li className="bg-red-200 w-4 h-4 rounded-full"></li>
+//                     <li className="bg-red-300 w-4 h-4 rounded-full"></li>
+//                     <li className="bg-red-400 w-4 h-4 rounded-full"></li>
+//                     <li className="bg-red-500 w-4 h-4 rounded-full"></li>
+//                   </ul>
+//                 </div>
+//                 <div className="w-full flex justify-between items-start">
+//                   <button
+//                     onClick={() => handleVirtualTry(item)}
+//                     className="text-xs p-1 group-hover:bg-white/70 rounded-full pointer-events-auto"
+//                   >
+//                     جرب الآن
+//                   </button>
+//                   <span className="select-none">
+//                     299
+//                     <sub className="line-through text-gray-500 mx-2">350</sub>
+//                   </span>
+//                 </div>
+//               </div>
+//             </div>
+//           ))}
+//           <button
+//             onClick={handleViewMore}
+//             className="w-[220px] lg:w-[260px] flex-shrink-0 h-[250px] md:h-[330px] lg:h-[400px] bg-light p-4 border border-gray-300 group relative pointer-events-auto"
+//           >
+//             <div className="p-4 w-full flex items-center justify-start h-full">
+//               <span className="font-ksa text-4xl rotate-90 select-none">
+//                 عرض المزيد
+//               </span>
+//             </div>
+//           </button>
+//         </div>
+
+//         <div className="relative md:absolute top-1/2 -translate-y-1/2 w-full flex justify-between gap-10 items-center my-8 md:my-0 h-10 md:h-auto pointer-events-none">
+//           {cardIndex === 0 ? null : (
+//             <button
+//               onClick={onRight}
+//               className="absolute right-0 bg-darkness/90 hover:bg-darkness border border-darkness px-2 py-1 shadow-lg rounded-full transition-all pointer-events-auto"
+//             >
+//               <ChevronRight className="w-4 text-white" />
+//             </button>
+//           )}
+//           {cardIndex < items.length - 1 && (
+//             <button
+//               onClick={onLeft}
+//               className="absolute left-0 bg-darkness/90 hover:bg-darkness border border-darkness px-2 py-1 shadow-lg rounded-full transition-all pointer-events-auto"
+//             >
+//               <ChevronLeft className="w-4 text-white" />
+//             </button>
+//           )}
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }

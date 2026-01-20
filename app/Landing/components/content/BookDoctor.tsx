@@ -1,7 +1,7 @@
 import Link from "next/link";
 import CardsFigure from "./CardsFigure";
 
-export default function BookDoctor() {
+export default function BookDoctor({ Doctors }) {
   return (
     <section className="h-full md:h-screen p-4 font-lyon flex flex-col md:flex-row justify-center items-center">
       <div
@@ -30,9 +30,8 @@ export default function BookDoctor() {
           </p>
         </div>
       </div>
-      {/* <div className="hidden md:flex items-center justify-center p-8"> */}
       <div className="hidden md:flex items-center justify-center px-8 h-full py-20">
-        <CardsFigure />
+        <CardsFigure CardImg={Doctors} />
       </div>
     </section>
   );

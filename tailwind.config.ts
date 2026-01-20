@@ -22,6 +22,7 @@ export default {
         blueDark: "#264466",
         darkBlue: "#243856",
         darkness: "#151515",
+        actionCTA: "#b38f6f",
       },
     },
   },
