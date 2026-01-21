@@ -72,6 +72,7 @@ const adsContent = [
   "/images/ad2_2.png",
   "/images/ad3_3.png",
 ];
+
 export default function LandingPage() {
   const [virtualTry, setVirtualTry] = useState(false);
   const [selectedGlasses, setSelectedGlasses] = useState<Product | null>(null);

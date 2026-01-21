@@ -117,6 +117,34 @@ export function SignupForm({
     }
   };
 
+  // const handleOAuthSignIn = async (provider: "google" | "facebook") => {
+  //   setIsLoading(true);
+  //   setError(null);
+
+  //   const supabase = createClient();
+
+  //   try {
+  //     const { error } = await supabase.auth.signInWithOAuth({
+  //       provider,
+  //       options: {
+  //         redirectTo: `${window.location.origin}/auth/callback`,
+  //         queryParams:
+  //           provider === "google"
+  //             ? {
+  //                 access_type: "offline",
+  //                 prompt: "consent",
+  //               }
+  //             : undefined,
+  //       },
+  //     });
+
+  //     if (error) throw error;
+  //   } catch (error: unknown) {
+  //     setError(error instanceof Error ? error.message : "حدث خطأ ما");
+  //     setIsLoading(false);
+  //   }
+  // };
+
   const handleOAuthSignIn = async (provider: "google" | "facebook") => {
     setIsLoading(true);
     setError(null);
@@ -124,10 +152,14 @@ export function SignupForm({
     const supabase = createClient();
 
     try {
+      const redirectUrl = process.env.NEXT_PUBLIC_SITE_URL
+        ? `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`
+        : `${window.location.origin}/auth/callback`;
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: redirectUrl,
           queryParams:
             provider === "google"
               ? {
