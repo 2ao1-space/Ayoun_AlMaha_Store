@@ -3,7 +3,7 @@ import Image from "next/image";
 export default function Hero() {
   return (
     <section className="container mx-auto flex items-start justify-between gap-8 px-4 pt-40 pb-20 h-auto mb-20">
-      <div className="w-full md:w-1/2 py-10 lg:pl-10 h-auto">
+      <div className="w-full md:w-1/2  lg:pl-10 h-auto">
         <h1 className="font-lifta text-5xl lg:text-8xl">
           اكتشف عالم برؤية جديدة
         </h1>
@@ -11,7 +11,7 @@ export default function Hero() {
           اكتشف مجموعتنا الحصرية من النظارات الطبية والشمسية. تصاميم عصرية، جودة
           استثنائية، وأسعار تناسب الجميع.
         </p>
-        <button className="font-lyon mt-8 px-6 py-2 bg-amber-500 text-white rounded-lg hover:bg-yellow-600 transition">
+        <button className="font-lyon mt-8 px-6 py-2 bg-accentPrimary hover:bg-yellow-600 text-darkness rounded-lg  transition">
           تسوق الآن
         </button>
       </div>

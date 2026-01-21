@@ -97,8 +97,8 @@ export default function Footer() {
           dir="ltr"
           className="col-span-12 col-start-1 row-start-12 flex justify-center md:justify-between text-xs font-sans relative bottom-4 uppercase"
         >
-          <span>2ao1 © 2025 - ayoun Al Maha</span>
-          <span>© All Rights Reserved</span>
+          <span>2ao1 © 2025 - ammar yasser</span>
+          <span className="hidden md:block">© All Rights Reserved</span>
         </div>
       </div>
     </footer>

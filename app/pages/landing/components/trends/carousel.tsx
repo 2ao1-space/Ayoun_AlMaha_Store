@@ -103,7 +103,7 @@ export default function CarouselBlock({
   };
 
   return (
-    <div className="md:py-10 font-lyon w-full">
+    <div className="py-4 md:py-10 font-lyon w-full">
       <div className="flex flex-col md:flex-row justify-center md:justify-between gap-2 md:gap-20 lg:items-end mb-4 lg:mb-10">
         <h2 className="text-2xl lg:text-6xl font-lifta text-center md:text-start">
           {title}
@@ -116,7 +116,7 @@ export default function CarouselBlock({
               onClick={control.action}
               className={`cursor-pointer transition-all duration-300 px-4 py-2 rounded-full ${
                 filter === control.value
-                  ? "bg-amber-500 text-white shadow-md"
+                  ? "bg-accentPrimary text-darkness shadow-md"
                   : "bg-light text-gray-600 hover:bg-gray-200"
               }`}
             >
@@ -147,15 +147,15 @@ export default function CarouselBlock({
             // />
             <div
               key={i}
-              className="w-[220px] lg:w-[260px] flex-shrink-0 h-[250px] md:h-[330px] lg:h-[400px] bg-light p-4 border border-gray-300 group relative"
+              className="w-[220px] lg:w-[260px] flex-shrink-0 h-[320px] md:h-[330px] lg:h-[400px] bg-light p-4 border border-gray-300 group relative"
               onDragStart={(e) => e.preventDefault()}
             >
               <Image
                 src={`/images/product_2.png`}
                 alt={item.title}
-                width={150}
+                width={250}
                 height={200}
-                className="object-contain h-full w-full pointer-events-none"
+                className="object-contain h-full w-full scale-125 pointer-events-none -rotate-90"
                 draggable={false}
               />
 
@@ -175,7 +175,7 @@ export default function CarouselBlock({
                 <div className="w-full flex justify-between items-start">
                   <button
                     onClick={() => handleVirtualTry(item)}
-                    className="text-xs p-1 group-hover:bg-white/70 rounded-full pointer-events-auto"
+                    className="text-xs py-1 px-2 group-hover:bg-accentPrimary text-darkness  rounded-full pointer-events-auto"
                   >
                     جرب الآن
                   </button>
@@ -189,7 +189,7 @@ export default function CarouselBlock({
           ))}
 
           <button
-            onClick={() => handleViewMore("products")}
+            onClick={() => handleViewMore("all")}
             className="w-[220px] lg:w-[260px] flex-shrink-0 h-[250px] md:h-[330px] lg:h-[400px] bg-light p-4 border group relative hover:border-amber-500 transition-all"
           >
             <div className="p-4 w-full flex items-center justify-center h-full">
@@ -200,7 +200,7 @@ export default function CarouselBlock({
           </button>
         </div>
 
-        <div className="relative md:absolute top-1/2 -translate-y-1/2 w-full flex justify-between gap-10 items-center my-8 md:my-0 h-10 md:h-auto pointer-events-none">
+        <div className="hidden relative md:absolute top-1/2 -translate-y-1/2 w-full md:flex justify-between gap-10 items-center my-8 md:my-0 h-10 md:h-auto pointer-events-none">
           {cardIndex === 0 ? null : (
             <button
               onClick={onRight}

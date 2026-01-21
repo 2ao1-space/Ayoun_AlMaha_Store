@@ -29,7 +29,43 @@ interface UserProfile {
   avatar_url?: string;
 }
 
-function UserBtn({ showUserMenu, setShowUserMenu }: UserBtnProps) {
+const menuItems = [
+  {
+    href: "/profile",
+    icon: User,
+    label: "الملف الشخصي",
+    iconColor: "focus:text-accentPrimary text-accentPrimary",
+  },
+  {
+    href: "/orders",
+    icon: Package,
+    label: "عمليات الشراء",
+    iconColor: "focus:text-accentPrimary text-accentPrimary",
+  },
+  {
+    href: "/wishlist",
+    icon: Heart,
+    label: "قائمة الأمنيات",
+    iconColor: "focus:text-accentPrimary text-accentPrimary",
+  },
+  {
+    href: "/cart",
+    icon: ShoppingBag,
+    label: "السلة",
+    iconColor: "focus:text-accentPrimary text-accentPrimary",
+  },
+  {
+    href: "/settings",
+    icon: Settings,
+    label: "الإعدادات",
+    iconColor: "focus:text-accentPrimary text-accentPrimary",
+  },
+];
+
+export default function UserBtn({
+  showUserMenu,
+  setShowUserMenu,
+}: UserBtnProps) {
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -175,83 +211,37 @@ function UserBtn({ showUserMenu, setShowUserMenu }: UserBtnProps) {
   if (loading) {
     return (
       <div className="p-2.5">
-        <div className="w-10 h-10 rounded-full bg-gray-200 animate-pulse"></div>
+        <div className="w-10 h-10 rounded-full bg-mainColor animate-pulse"></div>
       </div>
     );
   }
-
-  const menuItems = [
-    {
-      href: "/profile",
-      icon: User,
-      label: "الملف الشخصي",
-      bgColor: "bg-amber-100",
-      hoverColor: "group-hover:bg-amber-200",
-      iconColor: "text-amber-600",
-    },
-    {
-      href: "/orders",
-      icon: Package,
-      label: "عمليات الشراء",
-      bgColor: "bg-blue-100",
-      hoverColor: "group-hover:bg-blue-200",
-      iconColor: "text-blue-600",
-    },
-    {
-      href: "/wishlist",
-      icon: Heart,
-      label: "قائمة الأمنيات",
-      bgColor: "bg-pink-100",
-      hoverColor: "group-hover:bg-pink-200",
-      iconColor: "text-pink-600",
-    },
-    {
-      href: "/cart",
-      icon: ShoppingBag,
-      label: "السلة",
-      bgColor: "bg-green-100",
-      hoverColor: "group-hover:bg-green-200",
-      iconColor: "text-green-600",
-    },
-    {
-      href: "/settings",
-      icon: Settings,
-      label: "الإعدادات",
-      bgColor: "bg-purple-100",
-      hoverColor: "group-hover:bg-purple-200",
-      iconColor: "text-purple-600",
-    },
-  ];
 
   return (
     <div className="relative">
       <button
         ref={buttonRef}
         onClick={toggleMenu}
-        className={`relative p-1 rounded-full transition-all duration-300 hover:scale-110 active:scale-95 ${
-          showUserMenu ? "ring-2 ring-amber-400 ring-offset-2" : ""
-        }`}
+        className={`relative p-1 rounded-full transition-all duration-300 hover:scale-110 active:scale-95 `}
       >
         {userProfile ? (
-          <div className="relative">
+          <div className="relative w-6 h-6">
             {userProfile.avatar_url ? (
               <Image
                 width={10}
                 height={10}
                 src={userProfile.avatar_url}
                 alt={userProfile.full_name}
-                className="w-10 h-10 rounded-full object-cover border-2 border-amber-400 shadow-md"
+                className="w-6 h-6 rounded-full object-cover border-2 border-accentPrimary shadow-md"
               />
             ) : (
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 flex items-center justify-center text-white font-bold text-sm border-2 border-amber-400 shadow-md">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-accentPrimary via-accentPrimary to-accentPrimary flex items-center justify-center text-white font-bold text-sm border-2 border-accentPrimary shadow-md">
                 {getInitials(userProfile.full_name)}
               </div>
             )}
-            <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white shadow-sm animate-pulse"></span>
           </div>
         ) : (
-          <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
-            <User size={20} className="text-gray-600" />
+          <div className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-graySecondary/50 transition-colors">
+            <User size={20} className="text-accentPrimary" />
           </div>
         )}
       </button>
@@ -267,7 +257,7 @@ function UserBtn({ showUserMenu, setShowUserMenu }: UserBtnProps) {
         >
           {userProfile ? (
             <div>
-              <div className="relative bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 p-5 text-white overflow-hidden">
+              <div className="relative bg-gradient-to-br from-accentPrimary via-accentPrimary to-accentPrimary p-5 text-white overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
                 <div className="relative flex items-center gap-3">
                   {userProfile.avatar_url ? (
@@ -276,7 +266,7 @@ function UserBtn({ showUserMenu, setShowUserMenu }: UserBtnProps) {
                       height={10}
                       src={userProfile.avatar_url}
                       alt={userProfile.full_name}
-                      className="w-10 h-10 rounded-full object-cover border-2 border-amber-400 shadow-md"
+                      className="w-10 h-10 rounded-full object-cover border-2 border-accentPrimary shadow-md"
                     />
                   ) : (
                     <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white font-bold text-xl border-3 border-white/50 shadow-xl">
@@ -284,7 +274,7 @@ function UserBtn({ showUserMenu, setShowUserMenu }: UserBtnProps) {
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="font-bold text-lg truncate drop-shadow-sm">
+                    <p className="font-bold text-lg truncate drop-shadow-sm font-lifta">
                       مرحباً، {getFirstName(userProfile.full_name)}
                     </p>
                     <p className="text-sm text-white/90 truncate drop-shadow-sm">
@@ -300,14 +290,14 @@ function UserBtn({ showUserMenu, setShowUserMenu }: UserBtnProps) {
                     key={item.href}
                     href={item.href}
                     onClick={() => setShowUserMenu(false)}
-                    className="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-lg transition-all duration-200 group relative overflow-hidden"
+                    className="flex items-center gap-3 p-3 hover:bg-mainColor rounded-lg transition-all duration-200 group relative overflow-hidden"
                   >
                     <div
-                      className={`p-2 ${item.bgColor} rounded-lg ${item.hoverColor} transition-all duration-200`}
+                      className={`p-2 rounded-lg transition-all duration-200`}
                     >
                       <item.icon size={18} className={item.iconColor} />
                     </div>
-                    <span className="font-medium text-gray-700 group-hover:text-gray-900 transition-colors">
+                    <span className="font- font-lifta text-grayPrimary group-hover:text-darkness transition-colors">
                       {item.label}
                     </span>
                   </Link>
@@ -319,10 +309,10 @@ function UserBtn({ showUserMenu, setShowUserMenu }: UserBtnProps) {
                   onClick={handleLogout}
                   className="w-full flex items-center gap-3 p-3 hover:bg-red-50 rounded-lg transition-all duration-200 group relative overflow-hidden"
                 >
-                  <div className="p-2 bg-red-100 rounded-lg group-hover:bg-red-200 transition-all duration-200">
+                  <div className="p-2 rounded-lg  transition-all duration-200">
                     <LogOut size={18} className="text-red-600" />
                   </div>
-                  <span className="font-medium text-red-600 group-hover:text-red-700 transition-colors">
+                  <span className="font-bold font-lifta text-grayPrimary group-hover:text-red-700 transition-colors">
                     تسجيل الخروج
                   </span>
                 </button>
@@ -330,8 +320,8 @@ function UserBtn({ showUserMenu, setShowUserMenu }: UserBtnProps) {
             </div>
           ) : (
             <div className="p-5 space-y-3">
-              <div className="text-center mb-4">
-                <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center">
+              <div className="text-center mb-4 font-lifta">
+                <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-accentPrimary to-accentPrimary flex items-center justify-center">
                   <User size={32} className="text-white" />
                 </div>
                 <p className="text-gray-700 font-semibold text-lg">مرحباً بك</p>
@@ -343,19 +333,21 @@ function UserBtn({ showUserMenu, setShowUserMenu }: UserBtnProps) {
               <Link
                 href="/auth?mode=login"
                 onClick={() => setShowUserMenu(false)}
-                className="w-full flex items-center justify-center gap-2 p-3.5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-white rounded-lg hover:from-amber-500 hover:via-amber-600 hover:to-amber-700 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.98]"
+                className="w-full flex items-center justify-center gap-2 p-3.5 bg-gradient-to-r from-accentPrimary via-accentPrimary to-accentPrimary text-white rounded-lg hover:from-accentPrimary hover:via-accentPrimary hover:to-accentPrimary transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.98]"
               >
                 <LogIn size={18} />
-                <span className="font-semibold">تسجيل الدخول</span>
+                <span className="font-semibold font-lifta">تسجيل الدخول</span>
               </Link>
 
               <Link
                 href="/auth?mode=signup"
                 onClick={() => setShowUserMenu(false)}
-                className="w-full flex items-center justify-center gap-2 p-3.5 border-2 border-amber-400 text-amber-600 rounded-lg hover:bg-amber-50 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]"
+                className="w-full flex items-center justify-center gap-2 p-3.5 border-2 border-accentPrimary text-accentPrimary rounded-lg hover:bg-accentPrimarytransition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]"
               >
                 <UserPlus size={18} />
-                <span className="font-semibold">إنشاء حساب جديد</span>
+                <span className="font-semibold font-lifta">
+                  إنشاء حساب جديد
+                </span>
               </Link>
             </div>
           )}
@@ -364,5 +356,3 @@ function UserBtn({ showUserMenu, setShowUserMenu }: UserBtnProps) {
     </div>
   );
 }
-
-export default UserBtn;

@@ -141,3 +141,49 @@ export default function VeiwTopProducts({
     </section>
   );
 }
+
+// export function DemoVirtualTry() {
+//   const [showModal, setShowModal] = useState(false);
+//   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+//   const [showLoginModal, setShowLoginModal] = useState(false);
+
+//   return (
+//     <div className="p-8">
+//       <h1 className="text-3xl font-bold mb-6">تجربة النظارات</h1>
+//       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+//         {demoProducts.map((product) => (
+//           <div
+//             key={product.id}
+//             className="border rounded-lg p-4 hover:shadow-lg transition-shadow cursor-pointer"
+//             onClick={() => {
+//               setSelectedProduct(product);
+//               setShowModal(true);
+//             }}
+//           >
+//             <Image
+//               src={product.product_images[0].img}
+//               alt={product.product_name}
+//               width={300}
+//               height={200}
+//               className="w-full h-48 object-contain mb-4"
+//             />
+//             <h3 className="font-bold text-lg">{product.product_name}</h3>
+//             <p className="text-gray-600">{product.product_brand}</p>
+//             <p className="text-amber-600 font-bold mt-2">
+//               {product.product_price} ج
+//             </p>
+//           </div>
+//         ))}
+//       </div>
+
+//       {showModal && selectedProduct && (
+//         <VirtualTryModal
+//           product={selectedProduct}
+//           onClose={() => setShowModal(false)}
+//           showLoginModal={showLoginModal}
+//           setShowLoginModal={setShowLoginModal}
+//         />
+//       )}
+//     </div>
+//   );
+// }

@@ -27,7 +27,7 @@ const lyonArabic = localFont({
 
 export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
-  title: "المها - نظارات فاخرة بأسعار استثنائية",
+  title: "عمـار ياسـر - نظارات فاخرة بأسعار استثنائية",
   description:
     "متجر المها للبصريات - نظارات طبية وشمسية فاخرة، تصاميم عالمية، وأسعار تناسب الجميع. ضمان شامل وخدمة عملاء مميزة.",
   keywords: [
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     "نظارات عصرية",
     "نظارات رياضية",
   ],
-  authors: [{ name: "Al Maha Store" }],
+  authors: [{ name: "Ayoun Al Maha Store" }],
   icons: {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",
@@ -55,13 +55,11 @@ export const metadata: Metadata = {
   },
 };
 
-
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  
   return (
     <html
       lang="ar"
@@ -81,7 +79,11 @@ export default function RootLayout({
                     gtag("config", "${process.env.GOOGLE_ANALYTICS_ID}");`,
         }}
       />
-      <body className={`antialiased overflow-x-hidden`}>{children}</body>
+      <body
+        className={`antialiased overflow-x-hidden bg-mainColor text-darkness`}
+      >
+        {children}
+      </body>
     </html>
   );
 }

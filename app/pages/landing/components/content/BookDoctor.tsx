@@ -27,11 +27,11 @@ export default function BookDoctor({ Doctors }: BookDoctorProps) {
         <div className="flex justify-center md:justify-start flex-col items-center md:items-start">
           <Link
             href="/doctors"
-            className="bg-amber-600 text-white px-4 py-2 rounded-md"
+            className="bg-accentPrimary hover:bg-yellow-600 text-darkness px-4 py-2 rounded-md"
           >
             احجز موعدك الآن
           </Link>
-          <p className="text-xs text-gray-600 mt-2">
+          <p className="text-xs text-grayPrimary mt-2">
             عبر الموقع أو بزيارة أي فرع
           </p>
         </div>
