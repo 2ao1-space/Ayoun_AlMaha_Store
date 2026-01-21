@@ -10,29 +10,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-
-interface ProductImage {
-  color: string;
-  img: string;
-}
-
-interface Product {
-  id: number;
-  product_name: string;
-  product_images: ProductImage[];
-  product_price: string;
-  product_discount: string;
-  product_brand: string;
-  product_description: string;
-  product_type: string[];
-  inventor_Kits: number;
-  isfavoret: boolean;
-  isWhishlist: boolean;
-  isCart: boolean;
-  isSale: boolean;
-  isBestSeller: boolean;
-  glass_type: string[];
-}
+import { Product } from "../types/product";
 
 interface VirtualTryModalProps {
   product: Product;
@@ -40,121 +18,6 @@ interface VirtualTryModalProps {
   showLoginModal: boolean;
   setShowLoginModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
-
-const demoProducts: Product[] = [
-  {
-    id: 1,
-    product_name: "نظارة شمسية كلاسيك",
-    product_images: [
-      { color: "#333", img: "/images/product_2.png" },
-      { color: "#222", img: "/images/product_2.jpg" },
-      { color: "#444", img: "/images/product_2.png" },
-      { color: "#ff0", img: "/images/product_2.png" },
-      { color: "#f0f", img: "/images/product_2.jpg" },
-      { color: "#c09", img: "/images/product_2.png" },
-      { color: "#777", img: "/images/product_2.png" },
-      { color: "#484", img: "/images/product_2.jpg" },
-      { color: "#923", img: "/images/product_2.png" },
-    ],
-    product_price: "1200",
-    product_discount: "999",
-    product_brand: "RayVision",
-    product_description:
-      "نظارة شمسية بإطار معدني أنيق، مناسبة للاستخدام اليومي وتوفر حماية كاملة من الأشعة فوق البنفسجية.",
-    product_type: ["شمسية"],
-    inventor_Kits: 12,
-    isfavoret: false,
-    isWhishlist: false,
-    isCart: false,
-    isSale: true,
-    isBestSeller: true,
-    glass_type: ["UV400", "Polarized"],
-  },
-  {
-    id: 2,
-    product_name: "نظارة طبية رجالي",
-    product_images: [
-      { color: "أسود", img: "/images/product_2.png" },
-      { color: "رمادي", img: "/images/product_2.png" },
-    ],
-    product_price: "900",
-    product_discount: "750",
-    product_brand: "EyeCare",
-    product_description:
-      "نظارة طبية خفيفة الوزن، مناسبة للاستخدام الطويل بدون إجهاد للعين.",
-    product_type: ["طبية"],
-    inventor_Kits: 20,
-    isfavoret: true,
-    isWhishlist: false,
-    isCart: false,
-    isSale: true,
-    isBestSeller: false,
-    glass_type: ["Anti Reflective", "Blue Cut"],
-  },
-  {
-    id: 3,
-    product_name: "نظارة شمسية نسائي",
-    product_images: [
-      { color: "ذهبي", img: "/images/product_2.png" },
-      { color: "روز", img: "/images/product_2.png" },
-    ],
-    product_price: "1500",
-    product_discount: "1299",
-    product_brand: "Luna",
-    product_description:
-      "نظارة شمسية بإطار عصري وتصميم أنيق يناسب الإطلالات اليومية.",
-    product_type: ["شمسية"],
-    inventor_Kits: 8,
-    isfavoret: false,
-    isWhishlist: true,
-    isCart: false,
-    isSale: false,
-    isBestSeller: true,
-    glass_type: ["UV400"],
-  },
-  {
-    id: 4,
-    product_name: "نظارة طبية للجنسين",
-    product_images: [
-      { color: "شفاف", img: "/images/product_2.png" },
-      { color: "أسود", img: "/images/product_2.png" },
-    ],
-    product_price: "800",
-    product_discount: "650",
-    product_brand: "VisionPro",
-    product_description:
-      "نظارة طبية بتصميم بسيط يناسب الرجال والنساء، خامة عالية الجودة.",
-    product_type: ["طبية"],
-    inventor_Kits: 30,
-    isfavoret: false,
-    isWhishlist: false,
-    isCart: true,
-    isSale: true,
-    isBestSeller: false,
-    glass_type: ["Blue Cut"],
-  },
-  {
-    id: 5,
-    product_name: "نظارة شمسية رياضية",
-    product_images: [
-      { color: "أسود", img: "/images/product_2.png" },
-      { color: "أحمر", img: "/images/product_2.png" },
-    ],
-    product_price: "1800",
-    product_discount: "1499",
-    product_brand: "ActiveEye",
-    product_description:
-      "نظارة شمسية رياضية مقاومة للصدمات، مثالية للأنشطة الخارجية.",
-    product_type: ["شمسية", "رياضية"],
-    inventor_Kits: 5,
-    isfavoret: true,
-    isWhishlist: true,
-    isCart: false,
-    isSale: true,
-    isBestSeller: true,
-    glass_type: ["UV400", "Polarized"],
-  },
-];
 
 export default function VirtualTryModal({
   product,
@@ -171,7 +34,7 @@ export default function VirtualTryModal({
   const [dragStart, setDragStart] = useState<number | null>(null);
   const [thumbDragStart, setThumbDragStart] = useState<number | null>(null);
 
-  const displayProduct = product || demoProducts[0];
+  const displayProduct = product;
 
   useEffect(() => {
     document.body.style.overflow = "hidden";

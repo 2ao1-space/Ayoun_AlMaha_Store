@@ -5,17 +5,15 @@ import Hero from "./components/content/Hero";
 import VeiwTopProducts from "./components/trends/VeiwTopProducts";
 import Repair from "./components/content/Repair";
 import BookDoctor from "./components/content/BookDoctor";
-import { useEffect, useRef, useState } from "react";
-import { Product } from "./components/trends/carousel";
+import { useEffect, useState } from "react";
 import VirtualTryModal from "./components/trends/VirtualTryModal";
-import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ScrollSmoother } from "gsap/ScrollSmoother";
 import Footer from "./components/footer/Footer";
-import Image from "next/image";
 import BrandMarquee from "./components/content/BrandMarquee";
 import AdsBoard from "./components/content/AdsBoard";
+import { Product } from "./components/types/product";
 
 gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
 
@@ -74,7 +72,6 @@ const adsContent = [
   "/images/ad2_2.png",
   "/images/ad3_3.png",
 ];
-
 export default function LandingPage() {
   const [virtualTry, setVirtualTry] = useState(false);
   const [selectedGlasses, setSelectedGlasses] = useState<Product | null>(null);
@@ -98,29 +95,23 @@ export default function LandingPage() {
       <div id="smooth-wrapper">
         <div id="smooth-content">
           <Hero />
-
           <AdsBoard ads={adsContent} />
-
           <VeiwTopProducts
             virtualTry={virtualTry}
             setVirtualTry={setVirtualTry}
             selectedGlasses={selectedGlasses}
             setSelectedGlasses={setSelectedGlasses}
           />
-
           <BrandMarquee brands={brands} />
-
           <BookDoctor Doctors={Doctors} />
-
           <Repair />
-
           <Footer />
         </div>
       </div>
 
       {virtualTry && selectedGlasses && (
         <VirtualTryModal
-          glasses={selectedGlasses}
+          product={selectedGlasses}
           onClose={() => {
             setVirtualTry(false);
             setSelectedGlasses(null);

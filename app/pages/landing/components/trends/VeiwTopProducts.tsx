@@ -3,40 +3,37 @@
 import { useRef, useState } from "react";
 import CarouselBlock from "./carousel";
 import useCarousel from "../../hooks/carouselAnimation";
-import { Product } from "./carousel";
+import { Product } from "../types/product";
 
-// interface GlassesItem {
-//   id: number;
-//   title: string;
-//   gender: "men" | "women";
-//   tag: "best" | "new" | "sale";
-// }
+const medicalGlasses: Partial<Product>[] = Array.from({ length: 20 }).map(
+  (_, i) => ({
+    id: `med-${i}`,
+    title: `طبي ${i + 1}`,
+    brand: "Al Maha",
+    gender: i % 2 === 0 ? "men" : "women",
+    tag: i % 3 === 0 ? "best" : i % 3 === 1 ? "new" : "sale",
+    category: "medical",
+    description: "وصف المنتج",
+    price: 350,
+    discount_price: 299,
+    main_image: "/images/product_2.png",
+  }),
+);
 
-const medicalGlasses: Product[] = Array.from({ length: 20 }).map((_, i) => ({
-  id: `${i}`,
-  title: `طبي ${i + 1}`,
-  brand: "Al Maha",
-  gender: i % 2 === 0 ? "men" : "women",
-  tag: i % 3 === 0 ? "best" : i % 3 === 1 ? "new" : "sale",
-  category: "medical",
-  description: "وصف المنتج",
-  price: 350,
-  discount_price: 299,
-  main_image: "/images/product_2.png",
-}));
-
-const sunGlasses: Product[] = Array.from({ length: 20 }).map((_, i) => ({
-  id: `${i}`,
-  title: `شمس ${i + 1}`,
-  brand: "Al Maha",
-  gender: i % 2 === 0 ? "men" : "women",
-  tag: i % 3 === 0 ? "best" : i % 3 === 1 ? "new" : "sale",
-  category: "sun",
-  description: "وصف المنتج",
-  price: 350,
-  discount_price: 299,
-  main_image: "/images/product_2.png",
-}));
+const sunGlasses: Partial<Product>[] = Array.from({ length: 20 }).map(
+  (_, i) => ({
+    id: `sun-${i}`,
+    title: `شمس ${i + 1}`,
+    brand: "Al Maha",
+    gender: i % 2 === 0 ? "men" : "women",
+    tag: i % 3 === 0 ? "best" : i % 3 === 1 ? "new" : "sale",
+    category: "sun",
+    description: "وصف المنتج",
+    price: 350,
+    discount_price: 299,
+    main_image: "/images/product_2.png",
+  }),
+);
 
 interface VeiwTopProductsProps {
   virtualTry: boolean;

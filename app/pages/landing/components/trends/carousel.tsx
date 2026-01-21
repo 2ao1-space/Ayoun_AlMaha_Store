@@ -1,33 +1,11 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
-
-interface ColorVariant {
-  id: string;
-  color_name: string;
-  color_hex: string;
-  image_url: string;
-  stock: number;
-  is_available: boolean;
-}
-
-export interface Product {
-  id: string;
-  title: string;
-  brand: string;
-  gender: "men" | "women" | "unisex";
-  tag: "best" | "new" | "sale";
-  category: "medical" | "sun" | "sports";
-  description: string;
-  price: number;
-  discount_price?: number;
-  main_image: string;
-  color_variants?: ColorVariant[];
-}
+import { carouselToFullProduct, Product } from "../types/product";
 
 interface CarouselBlockProps {
   title: string;
-  items: Product[];
+  items: Partial<Product>[];
   filter: string | null;
   setFilter: (filter: string | null) => void;
   trackRef: React.RefObject<HTMLDivElement | null>;
@@ -38,7 +16,7 @@ interface CarouselBlockProps {
   virtualTry: boolean;
   setVirtualTry: (value: boolean) => void;
   selectedGlasses: Product | null;
-  setSelectedGlasses: (item: Product) => void;
+  setSelectedGlasses: (item: Product | null) => void;
 }
 
 export default function CarouselBlock({
@@ -65,8 +43,9 @@ export default function CarouselBlock({
     { label: "مخفض", value: "sale", action: () => setFilter("sale") },
   ];
 
-  const handleVirtualTry = (item: Product) => {
-    setSelectedGlasses(item);
+  const handleVirtualTry = (item: Partial<Product>) => {
+    const fullProduct = carouselToFullProduct(item);
+    setSelectedGlasses(fullProduct);
     setVirtualTry(true);
   };
 
@@ -152,7 +131,7 @@ export default function CarouselBlock({
             >
               <Image
                 src={`/images/product_2.png`}
-                alt={item.title}
+                alt={item.title || "Product image"}
                 width={250}
                 height={200}
                 className="object-contain h-full w-full scale-125 pointer-events-none -rotate-90"
