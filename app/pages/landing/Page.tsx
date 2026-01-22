@@ -79,6 +79,33 @@ export default function LandingPage() {
   const [showLoginModal, setShowLoginModal] = useState(false);
 
   useEffect(() => {
+    const cleanUrl = () => {
+      const url = new URL(window.location.href);
+      const authParams = [
+        "code",
+        "state",
+        "session_state",
+        "error",
+        "error_description",
+      ];
+      let hasAuthParam = false;
+
+      authParams.forEach((param) => {
+        if (url.searchParams.has(param)) {
+          url.searchParams.delete(param);
+          hasAuthParam = true;
+        }
+      });
+
+      if (hasAuthParam) {
+        window.history.replaceState({}, "", url.pathname);
+      }
+    };
+
+    cleanUrl();
+  }, []);
+
+  useEffect(() => {
     const smoother = ScrollSmoother.create({
       smooth: 1.5,
       effects: true,
